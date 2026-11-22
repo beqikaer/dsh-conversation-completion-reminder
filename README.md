@@ -32,6 +32,14 @@
 
 飞书是 markdown 卡片，微信是等价的纯文本版本（微信要求 CRLF，已处理）。
 
+## 配置页
+
+装好之后，左侧 **Settings** 里会多出这一块——五组表单、账号字段的取值说明就在右边的抽屉里：
+
+<img src="assets/screenshot-settings.png" alt="设置页里的对话完成提醒区块" width="620">
+
+深色主题用的是同一套控件，截图在 [`assets/screenshot-settings-dark.png`](assets/screenshot-settings-dark.png)。
+
 ## 它怎么工作
 
 - **宿主侧**（`index.js`）订阅轮次结束事件，默认处理 `completed`、`error`、`max-tokens` 三种结局，渲染上面那张卡片，再经 `dsh-feishu` / `dsh-weixin` 送出去——用的就是平时跟你对话的那个机器人。

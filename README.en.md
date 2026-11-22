@@ -32,6 +32,14 @@ A long turn usually finishes while you are looking at something else, and refres
 
 Feishu gets this as a markdown card; WeChat gets the plain-text equivalent (CRLF, because iLink renders bare LF as one long line).
 
+## The settings page
+
+Once installed, the left **Settings** page grows this block — five form groups, with the ID cheat-sheet in the drawer on the right:
+
+<img src="assets/screenshot-settings.png" alt="The 对话完成提醒 section in Settings" width="620">
+
+The dark theme uses the same controls: [`assets/screenshot-settings-dark.png`](assets/screenshot-settings-dark.png).
+
 ## What it does
 
 - **Host half** (`index.js`) watches turn completions (`completed`, `error`, `max-tokens` by default), renders the card above, and delivers it through `dsh-feishu` / `dsh-weixin` — the same bot that already talks to you.
