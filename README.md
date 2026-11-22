@@ -1,76 +1,129 @@
-# dsh-conversation-completion-reminder
+# dsh-conversation-completion-reminder · 对话完成提醒
 
-Send a Feishu (Lark) or WeChat card **when a DSH conversation turn finishes** — the task title, a truncated final answer, and the paths (and optionally the files) the turn produced. No polling, no extra bot credentials: it rides on the IM integrations your profile already has.
+一轮对话跑完，飞书或微信自动收到一张卡片：来自哪个入口、第几轮、跑在哪个文件夹、任务是什么、结果如何、产出了哪些文件。
 
-A long turn usually finishes while you are looking at something else. This bundle makes the result come to you instead of you refreshing the chat list.
+长任务常常在你切去忙别的事情之后才结束，盯着会话列表往往等不到头。装上它，让结果自己找上门。
 
-## What it does
+[English](README.en.md) · 简体中文
 
-- **Host half** (`index.js`) watches turn completions (`completed`, `error`, `max-tokens` by default), renders a card, and delivers it through `dsh-feishu` / `dsh-weixin` — the same bot that already talks to you.
-- **Client half** (`client.js`) adds a **对话完成提醒** section to the left **Settings** page with five form groups: 开关 / 飞书 / 微信 / 卡片内容 / 推送时机.
+## 卡片长什么样
 
-Nothing leaves your machine except the card, which goes through the IM bot you connected yourself.
+```
+🔔 信息提醒
+---
+💬 来自 飞书 · 信息提醒
+🕒 16:03 · 用时 3分42秒
+🗂 会话 重构支付回调的重试逻辑
+🔁 第 4 轮 · ✅ 完成
+📁 E:\work\pay
 
-## Requirements
+📝 任务
+把支付回调的重试逻辑改成指数退避，并补一个超时用例
 
-- DSH desktop **0.2.2-rc.1 ≤ version < 0.3.0-0** (`engines.dsh`).
-- At least one connected integration under **Integrations → Feishu / WeChat**. With no bot connected the plugin stays enabled but every delivery is skipped with a reason in the trace log.
+💬 结果
+已完成。重试封装进 src/pay/retry.ts，退避上限 30 秒……
 
-## Install
+📦 产物 2 个
+1. retry.ts · 4.1 KB
+   E:\work\pay\src\pay
+2. retry.md · 812 B
+   E:\work\pay\docs
+```
+
+飞书是 markdown 卡片，微信是等价的纯文本版本（微信要求 CRLF，已处理）。
+
+## 它怎么工作
+
+- **宿主侧**（`index.js`）订阅轮次结束事件，默认处理 `completed`、`error`、`max-tokens` 三种结局，渲染上面那张卡片，再经 `dsh-feishu` / `dsh-weixin` 送出去——用的就是平时跟你对话的那个机器人。
+- **浏览器侧**（`client.js`）在左侧 **Settings** 里加一个「对话完成提醒」区块，五组表单：开关 / 飞书 / 微信 / 卡片内容 / 推送时机。
+- 除了那张卡片，不向外发任何东西；卡片走的是你自己已经连好的机器人。
+
+## 要求
+
+- DSH desktop **0.2.2-rc.1 ≤ 版本 < 0.3.0-0**（`engines.dsh`）。
+- **Integrations** 里至少接好一个飞书机器人或微信账号。一个都没接时插件保持启用，但每次投递都会被跳过，原因写进轨迹日志。
+
+## 安装
 
 ```powershell
 dsh plugin --profile desktop add dsh-conversation-completion-reminder
 ```
 
-Or, from the app: **Settings → Plugins → Add plugin**, paste the package name, then enable the `completion-notifier` row and reload the window once.
+或者在应用里：**Settings → 插件 → 添加插件**，粘贴包名，启用 `completion-notifier` 行，然后刷新窗口一次。
 
-The bundle's patch inserts the row with `config: {}` — auto-discovery is the default, so it works before you configure anything.
+bundle 自带的 patch 以 `config: {}` 插入这一行，默认走自动发现，什么都不配也能用。
 
-Publishing notes (npm, catalog entry, self-hosted index) live in [docs/PUBLISH.md](docs/PUBLISH.md).
+## 快速上手
 
-## Configuration
+1. 装好、启用、刷新窗口。
+2. 打开 **Settings → 对话完成提醒**，ID 字段先留空（自动发现＝机器人自己的 owner 私聊）。
+3. 回会话里跑一轮稍长的任务。
+4. 卡片应该就到了。没到就看 `tracePath` 指向的日志，每次投递与否都有一行原因。
 
-Open **Settings → 对话完成提醒**. Leave the ID fields empty and the plugin discovers the bot from `ctx.dshIm.listBots()` and the recipient from that bot's own integration config (its owner). Fill them in to pin one specific chat.
+## 配置
 
-| Field | Default | Meaning |
+打开 **Settings → 对话完成提醒**。ID 留空即自动发现：机器人来自 `ctx.dshIm.listBots()`，接收人来自该机器人自己的集成配置（它的 owner）。填上则固定某一个会话。
+
+| 字段 | 默认 | 含义 |
 | --- | --- | --- |
-| `enabled` | `true` | Master switch for delivery |
-| `botId` / `openId` | `''` (discover) | Feishu bot and receiver |
-| `targetId` | `tgt_completion_notifier` | Delivery target key for Feishu |
-| `format` | `markdown` | Feishu card body format (`markdown` / `plain`) |
-| `weixinEnabled` | `true` | Also push to WeChat |
-| `weixinBotId` / `weixinToUserId` | `''` (discover) | WeChat account and receiver |
-| `weixinFormat` | `plain` | WeChat body format |
-| `cardTitle` | `信息提醒` | Header printed on every card |
-| `maxTaskChars` | `2000` | Task text budget (the task is shown whole by design) |
-| `maxAnswerChars` | `1200` | Answer text budget |
-| `maxArtifacts` | `12` | How many artifact paths are listed |
-| `attachFiles` | `true` | Upload the artifacts themselves, not just paths |
-| `maxAttachments` | `5` | Per-run upload cap |
-| `maxAttachBytes` | `20971520` | Larger files are reported by path only |
-| `attachTypes` | `png jpg jpeg gif webp bmp svg pdf txt md csv json yaml yml log doc docx xls xlsx ppt pptx zip 7z tar gz` | Which extensions may be uploaded; an **empty list means no filtering** |
-| `titleWaitMs` / `titleWaitSteps` | `400` / `3` | Short wait for the session title to land |
-| `skipSubagents` | `true` | Do not report subagent turns |
-| `skipSameChannel` | `true` | Do not report a turn back into the chat that just spoke |
-| `skipImSessions` | `false` | Drop every IM-originated conversation |
-| `skipSessionIds` | `[]` | Session ids to ignore |
-| `notifyOn` | `completed, error, max-tokens` | Which turn outcomes produce a card |
-| `tracePath` | `$DSH_HOME/completion-notifier.log` | Delivery trail, one line per decision |
+| `enabled` | `true` | 总开关 |
+| `botId` / `openId` | `''`（自动） | 飞书机器人与接收人 |
+| `targetId` | `tgt_completion_notifier` | 飞书投递目标键 |
+| `format` | `markdown` | 飞书卡片正文格式（`markdown` / `plain`） |
+| `weixinEnabled` | `true` | 同时推微信 |
+| `weixinBotId` / `weixinToUserId` | `''`（自动） | 微信账号与接收人 |
+| `weixinFormat` | `plain` | 微信正文格式 |
+| `cardTitle` | `信息提醒` | 每张卡片的标题 |
+| `maxTaskChars` | `2000` | 任务文本上限 |
+| `maxAnswerChars` | `1200` | 回答文本上限 |
+| `maxArtifacts` | `12` | 列出多少个产物路径 |
+| `attachFiles` | `true` | 连产物文件一起发，而不只是路径 |
+| `maxAttachments` | `5` | 单轮上传上限 |
+| `maxAttachBytes` | `20971520` | 超过只报路径 |
+| `attachTypes` | `png jpg jpeg gif webp bmp svg pdf txt md csv json yaml yml log doc docx xls xlsx ppt pptx zip 7z tar gz` | 允许上传的扩展名；**留空表示不限制** |
+| `titleWaitMs` / `titleWaitSteps` | `400` / `3` | 短暂等待会话标题生成 |
+| `skipSubagents` | `true` | 不报子代理的轮次 |
+| `skipSameChannel` | `true` | 不把结果推回刚刚说话的那个会话 |
+| `skipImSessions` | `false` | 丢弃所有来自 IM 的会话 |
+| `skipSessionIds` | `[]` | 忽略的会话 id |
+| `notifyOn` | `completed, error, max-tokens` | 哪些结束状态发卡片 |
+| `tracePath` | `$DSH_HOME/completion-notifier.log` | 投递轨迹，每次决策一行 |
 
-### About the receiver IDs
+### 接收人 ID 从哪来
 
-`open_id` is **scoped per Feishu app**: the same person has a different `ou_…` in every bot. DSH learns it when that person messages the bot, and records it as `p2p:<open_id>` in `%USERPROFILE%\.dsh\integrations\dsh-feishu\bots\<bot_id>\state.json`. To push to somebody else, either have them send one message to the bot first, or resolve their ID with `POST /open-apis/contact/v3/users/batch_get_id` (needs contact permission and app availability). An ID copied from another bot's config will not work.
+`open_id` 是**按飞书应用隔离**的：同一个人在「信息提醒」和「文档助手」两个机器人下是两个不同的 `ou_…`。DSH 在对方第一次给这个机器人发消息时拿到它，记进：
 
-## Known limits
+```
+%USERPROFILE%\.dsh\integrations\dsh-feishu\bots\<bot_id>\state.json
+```
 
-- **WeChat needs a recent inbound message** from the recipient; iLink refuses a chat that has gone quiet (`delivery-failed`). Send the bot one message and the next card goes through.
-- WeChat deliveries are plain text; Feishu gets a card with markdown.
-- If several bots are connected and no `botId` is pinned, discovery takes the first loaded one.
+形如 `"p2p:ou_…": "session-…"`。
 
-## Uninstall
+要给其他人推送，两条路：让对方先给机器人发一句话（最省事，DSH 自动记下来），或者用 `POST /open-apis/contact/v3/users/batch_get_id` 拿手机号/邮箱换（需要通讯录权限和应用可用范围）。从别的机器人配置里抄来的 ID 用不了。
 
-Disable or remove the `completion-notifier` row in **Settings → Plugins**. The settings values live in the profile's patch and survive the removal.
+## 常见问题
 
-## License
+**微信收不到。** iLink 会拒绝已经冷掉的会话（日志里是 `delivery-failed`，原话是 the chat needs a fresh message from the recipient）。让对方给机器人发一条消息，下一张卡片就通了。
+
+**太吵。** 把 `notifyOn` 缩到只剩 `completed`；或者打开 `skipSubagents`、`skipImSessions`；也可以让 `skipSameChannel` 保持开启，避免给正在说话的会话再推一遍。
+
+**不想发文件，只要路径。** 关掉 `attachFiles`，或调小 `maxAttachments` / `maxAttachBytes`。
+
+**只想传某几类产物。** 改 `attachTypes`（逗号分隔的扩展名）；留空表示不限制。
+
+**接了多个机器人。** 自动发现取第一个加载的，想固定就填 `botId`。
+
+**卡片标题想换。** 改 `cardTitle`。
+
+## 卸载
+
+在 **Settings → 插件**里禁用或删除 `completion-notifier` 行即可。配置值留在 profile 的 patch 里，删掉插件也还在。
+
+## 更多
+
+- [docs/DETAIL.md](docs/DETAIL.md)：实现细节、字段语义、投递链路。
+- [docs/PUBLISH.md](docs/PUBLISH.md)：npm 发布、目录收录、自建索引三条分发路线。
+
+## 许可
 
 MIT
