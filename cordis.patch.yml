@@ -1,0 +1,18 @@
+# Proactive delivery for finished turns.
+#
+# Every field is optional. Left blank, the plugin discovers the bot from
+# ctx.dshIm.listBots() and the receiver from that bot's own integration config
+# (its owner id), so a fresh profile works with `config: {}`.
+#
+# Fill them in to pin one specific chat — the Settings page (对话完成提醒) writes
+# the same values, so editing YAML by hand is optional:
+#   botId            Feishu bot id           (integrations/dsh-feishu/config.json → bots[].id)
+#   openId           Feishu receiver         (that bot's ownerOpenIds[0])
+#   weixinBotId      Weixin account id       (integrations/dsh-weixin/config.json → accounts[].botId)
+#   weixinToUserId   Weixin receiver         (that account's ownerUserId)
+#   cardTitle        the name printed on top of every card
+#   tracePath        where the delivery trail is appended (defaults to $DSH_HOME/completion-notifier.log)
+- insert:
+    - id: completion-notifier
+      name: 'dsh-conversation-completion-reminder'
+      config: {}

@@ -1,0 +1,77 @@
+{
+  "name": "dsh-conversation-completion-reminder",
+  "version": "1.0.0",
+  "description": "Push a Feishu or WeChat card when a DSH conversation turn finishes: task title, truncated answer, artifact paths, and configurable attachment types.",
+  "type": "module",
+  "license": "MIT",
+  "author": "beqikaer",
+  "homepage": "https://github.com/beqikaer/dsh-conversation-completion-reminder#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/beqikaer/dsh-conversation-completion-reminder.git"
+  },
+  "bugs": {
+    "url": "https://github.com/beqikaer/dsh-conversation-completion-reminder/issues"
+  },
+  "keywords": [
+    "deepseek",
+    "harness",
+    "dsh",
+    "dsh-plugin",
+    "notify",
+    "notification",
+    "feishu",
+    "lark",
+    "weixin",
+    "wechat"
+  ],
+  "icon": "icon.svg",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./cordis.patch.yml": "./cordis.patch.yml",
+    "./package.json": "./package.json",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg"
+  },
+  "files": [
+    "index.js",
+    "client.js",
+    "cordis.patch.yml",
+    "icon.svg",
+    "assets",
+    "locale",
+    "docs",
+    "README.md",
+    "README.zh.md",
+    "LICENSE"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-locale",
+        "@deepseek-ai/dsh-client-ui-settings"
+      ]
+    }
+  },
+  "engines": {
+    "dsh": ">=0.2.2-rc.1 <0.3.0-0"
+  },
+  "peerDependencies": {
+    "@deepseek-ai/schemastery": ">=3.18.0"
+  },
+  "peerDependenciesMeta": {
+    "@deepseek-ai/schemastery": {
+      "optional": true
+    }
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  }
+}

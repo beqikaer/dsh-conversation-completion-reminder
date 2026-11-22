@@ -1,0 +1,7 @@
+{
+  "meta": {
+    "title": "Completion notifier",
+    "description": "When any conversation finishes a turn, proactively push its final result and file outputs to Feishu and Weixin through the IM bot — immediate, no polling. Bot, recipient and card title are all configurable; leave them blank to use whatever account this machine already has connected.",
+    "detail": "docs/DETAIL.md"
+  }
+}

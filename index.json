@@ -1,0 +1,71 @@
+{
+  "format": 1,
+  "title": {
+    "en": "beqikaer's DSH plugins",
+    "zh": "beqikaer 的 DSH 插件"
+  },
+  "description": {
+    "en": "Small DSH bundles that make the desktop app tell you when something finishes.",
+    "zh": "让 DSH 桌面端在事情做完时通知你的小插件。"
+  },
+  "metadata": {
+    "categories": {
+      "notify": {
+        "title": {
+          "en": "Notifications",
+          "zh": "通知提醒"
+        }
+      }
+    },
+    "labels": {},
+    "sortKeys": {}
+  },
+  "plugins": [
+    {
+      "name": "dsh-conversation-completion-reminder",
+      "title": {
+        "en": "Conversation Completion Reminder",
+        "zh": "对话完成提醒"
+      },
+      "description": {
+        "en": "Push a Feishu or WeChat card with the task title, the final answer and the artifact paths when a DSH conversation turn finishes.",
+        "zh": "对话结束时，把任务标题、最终回答和产物路径推成一张飞书或微信卡片。"
+      },
+      "icon": "data:image/png;base64,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",
+      "author": "beqikaer",
+      "homepage": "https://github.com/beqikaer/dsh-conversation-completion-reminder#readme",
+      "repository": {
+        "url": "https://github.com/beqikaer/dsh-conversation-completion-reminder"
+      },
+      "metadata": {
+        "category": "notify",
+        "keywords": [
+          "deepseek",
+          "harness",
+          "dsh",
+          "dsh-plugin",
+          "notify",
+          "notification",
+          "feishu",
+          "lark",
+          "weixin",
+          "wechat"
+        ],
+        "labels": [],
+        "sortKeys": {}
+      },
+      "versions": [
+        {
+          "version": "1.0.0",
+          "publishTimestamp": 1795338443,
+          "source": {
+            "type": "npm"
+          },
+          "engines": {
+            "dsh": ">=0.2.2-rc.1 <0.3.0-0"
+          }
+        }
+      ]
+    }
+  ]
+}
