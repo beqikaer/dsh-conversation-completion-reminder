@@ -1,6 +1,6 @@
 {
   "name": "dsh-conversation-completion-reminder",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Push a Feishu or WeChat card when a DSH conversation turn finishes: task title, truncated answer, artifact paths, and configurable attachment types.",
   "type": "module",
   "license": "MIT",
